@@ -14,6 +14,7 @@
 		30DB5275C39B2361104B298B /* PostCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F4A6D25ECCA54A98B70BAB /* PostCard.swift */; };
 		40B175C4CE90E989C26CF9C2 /* VideoCardBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B37978759F0586DE564F17 /* VideoCardBody.swift */; };
 		42E407047D0C91D592A025AD /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B04A0514217797A237F9D1E /* SupabaseService.swift */; };
+		4352F9FC9BF89359519FD2D9 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = EC20FA61C81A0E82689C4FBB /* Fonts */; };
 		436E2C44C25F86C6959ED894 /* ClassicNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCD99E60D9F572193A254FC /* ClassicNavBar.swift */; };
 		4592F4A30386AC5F0347FCC9 /* PhotoCardBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4FB3A6EAF971DAA850A2F /* PhotoCardBody.swift */; };
 		47B0D595FD6AC3F97A33B5F7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3DCF32C313664FFE3466F1E /* Assets.xcassets */; };
@@ -62,6 +63,7 @@
 		B8A18496B67539F9AE2F7E63 /* LiveRail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveRail.swift; sourceTree = "<group>"; };
 		BB6F0DB6E244C77369FCEBEF /* RivaNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RivaNavBar.swift; sourceTree = "<group>"; };
 		D7B1981E2CE9B0F8B4E5CE03 /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
+		EC20FA61C81A0E82689C4FBB /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		F0969CAF967A260FEED74FE5 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		F7BC7E94D708626FCB07AE4A /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		FCCD99E60D9F572193A254FC /* ClassicNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicNavBar.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				B3DCF32C313664FFE3466F1E /* Assets.xcassets */,
+				EC20FA61C81A0E82689C4FBB /* Fonts */,
 				DEEA7652BD52AEE79D8418C1 /* Resources */,
 				7E4DDC177E9ABE1BEA1E850A /* riva */,
 				79B75375EDC2085418938D46 /* Products */,
@@ -291,6 +294,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				47B0D595FD6AC3F97A33B5F7 /* Assets.xcassets in Resources */,
+				4352F9FC9BF89359519FD2D9 /* Fonts in Resources */,
 				EDE0D518D311904FC9B8C0BF /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -27,10 +27,21 @@ targets:
         type: file
         createsGroup: true
         optional: true
+      - path: Resources/Fonts
+        type: folder
+        createsGroup: true
     info:
       path: riva/Config/Info.plist
       properties:
         UILaunchStoryboardName: LaunchScreen
+        UIAppFonts:
+          - Archivo-Bold.ttf
+          - Archivo-SemiBold.ttf
+          - Archivo-ExtraBold.ttf
+          - Archivo-Black.ttf
+          - Inter-Regular.ttf
+          - Inter-Medium.ttf
+          - Inter-SemiBold.ttf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.riva.app

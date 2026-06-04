@@ -1,53 +1,54 @@
 import SwiftUI
 
 // MARK: - Typography
-// Riva uses Archivo for display and Inter for body.
-// These fonts are referenced in Info.plist under UIAppFonts.
-// If font files aren't bundled, SwiftUI custom fonts fall back to system fonts.
-// In a production app, download Archivo and Inter from Google Fonts:
-//   https://fonts.google.com/specimen/Archivo  (Black, ExtraBold, Bold, SemiBold)
-//   https://fonts.google.com/specimen/Inter     (Regular, Medium, SemiBold)
-// Place .ttf files in Resources/Fonts/ and add filenames to Info.plist UIAppFonts array.
+// Archivo (display) and Inter (body) from Google Fonts, bundled in Resources/Fonts/.
+// Registered via UIAppFonts in Info.plist (project.yml info.properties).
 
-// MARK: - Archivo (display fonts via system fallback)
+// MARK: - Archivo (display fonts)
+
 extension Font {
-    /// Archivo 900 weight approximation
+    /// Archivo Black — weight 900
     static func archivoBlack(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .black, design: .default)
+        .custom("Archivo-Black", size: size)
     }
     
-    /// Archivo 800 weight approximation
+    /// Archivo ExtraBold — weight 800
     static func archivoExtraBold(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .heavy, design: .default)
+        .custom("Archivo-ExtraBold", size: size)
     }
     
-    /// Archivo 700 weight approximation
+    /// Archivo Bold — weight 700
     static func archivoBold(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .bold, design: .default)
+        .custom("Archivo-Bold", size: size)
     }
     
-    /// Archivo 600 weight approximation
+    /// Archivo SemiBold — weight 600
     static func archivoSemiBold(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .semibold, design: .default)
+        .custom("Archivo-SemiBold", size: size)
     }
-    
-    /// Inter 600 weight approximation
+}
+
+// MARK: - Inter (body fonts)
+
+extension Font {
+    /// Inter SemiBold — weight 600
     static func interSemiBold(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .semibold, design: .rounded)
+        .custom("Inter-SemiBold", size: size)
     }
     
-    /// Inter 500 weight approximation
+    /// Inter Medium — weight 500
     static func interMedium(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .medium, design: .rounded)
+        .custom("Inter-Medium", size: size)
     }
     
-    /// Inter 400/450 weight approximation
+    /// Inter Regular — weight 400
     static func interRegular(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .regular, design: .rounded)
+        .custom("Inter-Regular", size: size)
     }
 }
 
 // MARK: - Design spec font extensions
+
 extension Font {
     /// Wordmark "RIVA" — Archivo 900, 28pt
     static let rivaWordmark = Font.archivoBlack(28)
