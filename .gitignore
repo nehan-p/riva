@@ -1,0 +1,15 @@
+# Xcode
+*.xcuserdata
+*.xcworkspace/xcuserdata
+DerivedData/
+*.xcuserstate
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+
+# Secrets (Supabase keys, etc.)
+riva/Config/Secrets.swift

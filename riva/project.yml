@@ -1,0 +1,87 @@
+name: riva
+options:
+  bundleIdPrefix: com.riva
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "26.5"
+  generateEmptyDirectories: false
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: "complete"
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  riva:
+    type: application
+    platform: iOS
+    sources:
+      - path: riva
+        type: group
+        createsGroup: true
+      - path: Resources/Assets.xcassets
+        type: folder
+        createsGroup: true
+      - path: Resources/LaunchScreen.storyboard
+        type: file
+        createsGroup: true
+        optional: true
+      - path: Resources/Fonts/Archivo-Bold.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Archivo-SemiBold.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Archivo-ExtraBold.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Archivo-Black.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Inter-Regular.otf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Inter-Medium.otf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Inter-SemiBold.otf
+        type: file
+        createsGroup: true
+    info:
+      path: riva/Config/Info.plist
+      properties:
+        UILaunchStoryboardName: LaunchScreen
+        UIAppFonts:
+          - Archivo-Bold.ttf
+          - Archivo-SemiBold.ttf
+          - Archivo-ExtraBold.ttf
+          - Archivo-Black.ttf
+          - Inter-Regular.otf
+          - Inter-Medium.otf
+          - Inter-SemiBold.otf
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.riva.app
+        INFOPLIST_FILE: riva/Config/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - package: supabase-swift
+        product: Supabase
+      - package: supabase-swift
+        product: Auth
+      - package: supabase-swift
+        product: PostgREST
+      - package: supabase-swift
+        product: Functions
+      - package: supabase-swift
+        product: Storage
+      - package: supabase-swift
+        product: Realtime
+
+packages:
+  supabase-swift:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.0.0
