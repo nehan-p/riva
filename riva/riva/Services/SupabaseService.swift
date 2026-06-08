@@ -31,8 +31,44 @@ actor SupabaseService {
         let _ = try await client.auth.signUp(email: email, password: password)
     }
     
+    /// Returns whether the sign-up requires email confirmation.
+    func signUpWithRedirect(email: String, password: String) async throws -> Bool {
+        let response = try await client.auth.signUp(
+            email: email,
+            password: password
+        )
+        // If no session was returned, email confirmation is required
+        return response.session == nil
+    }
+    
     func signOut() async throws {
         try await client.auth.signOut()
+    }
+    
+    func resetPasswordForEmail(_ email: String) async throws {
+        try await client.auth.resetPasswordForEmail(email)
+    }
+    
+    /// Exchanges the auth code from a deep link verification URL to set the session.
+    func exchangeAuthCode(from url: URL) async throws {
+        try await client.auth.session(from: url)
+    }
+    
+    // MARK: - Auth State Stream
+    
+    /// Exposes auth state changes so MainActor SessionManager can listen.
+    /// Returns a tuple of (AuthChangeEvent, Session?) for each state change.
+    func authStateChanges() -> AsyncStream<(AuthChangeEvent, Session?)> {
+        AsyncStream { continuation in
+            let task = Task {
+                for await (event, session) in client.auth.authStateChanges {
+                    continuation.yield((event, session))
+                }
+            }
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
+        }
     }
     
     var currentSession: Supabase.Session? {
@@ -45,6 +81,19 @@ actor SupabaseService {
         get async {
             try? await client.auth.session.user.id
         }
+    }
+    
+    // MARK: - Profiles
+    
+    func checkUsernameAvailability(_ username: String) async throws -> Bool {
+        let response = try await client
+            .from("users")
+            .select("*", head: true, count: .exact)
+            .eq("username", value: username.lowercased())
+            .execute()
+        // Count is in the response count — head query returns no rows
+        let count = response.count ?? 0
+        return count == 0
     }
     
     // MARK: - Users

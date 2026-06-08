@@ -27,8 +27,26 @@ targets:
         type: file
         createsGroup: true
         optional: true
-      - path: Resources/Fonts
-        type: folder
+      - path: Resources/Fonts/Archivo-Bold.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Archivo-SemiBold.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Archivo-ExtraBold.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Archivo-Black.ttf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Inter-Regular.otf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Inter-Medium.otf
+        type: file
+        createsGroup: true
+      - path: Resources/Fonts/Inter-SemiBold.otf
+        type: file
         createsGroup: true
     info:
       path: riva/Config/Info.plist
@@ -39,9 +57,9 @@ targets:
           - Archivo-SemiBold.ttf
           - Archivo-ExtraBold.ttf
           - Archivo-Black.ttf
-          - Inter-Regular.ttf
-          - Inter-Medium.ttf
-          - Inter-SemiBold.ttf
+          - Inter-Regular.otf
+          - Inter-Medium.otf
+          - Inter-SemiBold.otf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.riva.app

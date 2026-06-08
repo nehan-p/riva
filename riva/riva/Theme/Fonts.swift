@@ -1,7 +1,9 @@
 import SwiftUI
 
 // MARK: - Typography
-// Archivo (display) and Inter (body) from Google Fonts, bundled in Resources/Fonts/.
+// Archivo (display) and Inter (body) from Homebrew font-cask, bundled in Resources/Fonts/.
+// Archivo: static TTF instances extracted from variable font via fontTools.
+// Inter: OTF binaries copied directly.
 // Registered via UIAppFonts in Info.plist (project.yml info.properties).
 
 // MARK: - Archivo (display fonts)

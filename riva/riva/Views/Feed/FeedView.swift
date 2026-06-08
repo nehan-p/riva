@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Feed View
 struct FeedView: View {
     @State private var viewModel = FeedViewModel()
+    @EnvironmentObject private var sessionManager: SessionManager
     @Environment(\.rivaTheme) private var theme
     @Environment(\.rivaAccent) private var accent
     
@@ -43,6 +44,7 @@ struct FeedView: View {
 
 #Preview {
     FeedView()
+        .environmentObject(SessionManager())
         .environment(\.rivaTheme, .ink)
         .environment(\.rivaAccent, .gold)
 }
