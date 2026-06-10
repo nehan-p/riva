@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Feed View
 struct FeedView: View {
     @State private var viewModel = FeedViewModel()
+    @State private var showLogLift = false
     @EnvironmentObject private var sessionManager: SessionManager
     @Environment(\.rivaTheme) private var theme
     @Environment(\.rivaAccent) private var accent
@@ -22,7 +23,7 @@ struct FeedView: View {
                         LiveRail()
                             .padding(.top, 4)
                         
-                        ForEach(viewModel.feedPosts) { post in
+                        ForEach(viewModel.posts) { post in
                             PostCard(post: post)
                                 .padding(.top, 8)
                         }
@@ -37,7 +38,21 @@ struct FeedView: View {
             }
         }
         .task {
-            viewModel.loadSampleFeed()
+            await viewModel.loadFeed()
+        }
+        .onChange(of: viewModel.selectedTab) { _, newTab in
+            if newTab == .logLift {
+                showLogLift = true
+            }
+        }
+        .sheet(isPresented: $showLogLift, onDismiss: {
+            viewModel.selectedTab = .feed
+        }) {
+            if let userId = sessionManager.currentUser?.id {
+                LogLiftSheetView(userId: userId) {
+                    await viewModel.loadFeed()
+                }
+            }
         }
     }
 }

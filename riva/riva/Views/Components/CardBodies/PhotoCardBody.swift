@@ -6,9 +6,9 @@ struct PhotoCardBody: View {
     var body: some View {
         MediaWell(
             isVideo: false,
-            videoDuration: nil,
             overlayLabel: post.workoutLabel,
-            overlayDuration: post.duration
+            overlayDuration: post.duration,
+            imageUrl: post.imageUrl
         )
     }
 }

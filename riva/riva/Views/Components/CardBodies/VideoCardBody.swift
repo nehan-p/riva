@@ -8,7 +8,8 @@ struct VideoCardBody: View {
             isVideo: true,
             videoDuration: post.videoLength,
             overlayLabel: post.workoutLabel,
-            overlayDuration: post.duration
+            overlayDuration: post.duration,
+            videoUrl: post.videoUrl
         )
     }
 }

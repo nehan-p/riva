@@ -16,7 +16,10 @@ struct Exercise: Identifiable, Codable, Equatable {
     
     var displayWeight: String {
         guard let weight = weight else { return "—" }
-        return "\(Int(weight)) \(unit ?? "lbs")"
+        let trimmed = weight.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", weight)
+            : String(format: "%.1f", weight)
+        return "\(trimmed) \(unit ?? "lbs")"
     }
     
     init(id: UUID = UUID(), name: String, weight: Double?, sets: Int?, reps: Int?, unit: String? = "lbs") {
@@ -247,6 +250,8 @@ struct PRPost: Equatable {
     let previousWeight: Int
     let gain: Int
     let supportLifts: [Exercise]
+    let mediaUrl: String?
+    let mediaType: String?
     
     var shared: SharedPostData {
         SharedPostData(id: id, author: author, timeAgo: timeAgo, tag: tag, caption: caption,
@@ -274,7 +279,9 @@ struct PRPost: Equatable {
         supportLifts: [
             Exercise(name: "Deficit Deadlift", weight: 405, sets: 3, reps: 5),
             Exercise(name: "RDL", weight: 315, sets: 4, reps: 8),
-        ]
+        ],
+        mediaUrl: nil,
+        mediaType: nil
     )
 }
 

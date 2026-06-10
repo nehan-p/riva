@@ -3,14 +3,34 @@ import PhotosUI
 
 // MARK: - Media Well (Photo/Video placeholder)
 struct MediaWell: View {
-    let height: CGFloat = 300
+    let height: CGFloat
     let isVideo: Bool
     let videoDuration: String?
     let overlayLabel: String?
     let overlayDuration: String?
+    let imageUrl: String?
+    let videoUrl: String?
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImage: Image?
     @Environment(\.rivaTheme) private var theme
+    
+    init(
+        height: CGFloat = 300,
+        isVideo: Bool,
+        videoDuration: String? = nil,
+        overlayLabel: String? = nil,
+        overlayDuration: String? = nil,
+        imageUrl: String? = nil,
+        videoUrl: String? = nil
+    ) {
+        self.height = height
+        self.isVideo = isVideo
+        self.videoDuration = videoDuration
+        self.overlayLabel = overlayLabel
+        self.overlayDuration = overlayDuration
+        self.imageUrl = imageUrl
+        self.videoUrl = videoUrl
+    }
     
     var body: some View {
         ZStack {
@@ -20,27 +40,33 @@ struct MediaWell: View {
                 .frame(height: height)
             
             if let selectedImage = selectedImage {
-                // Loaded image
+                // Local picked image
                 selectedImage
                     .resizable()
                     .scaledToFill()
                     .frame(height: height)
                     .clipped()
-            } else {
-                // Placeholder
-                VStack(spacing: 12) {
-                    Image(systemName: isVideo ? "video.fill" : "photo.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(theme.muted.opacity(0.5))
-                    
-                    Text(isVideo ? "DROP A GYM VIDEO" : "DROP A GYM PHOTO")
-                        .font(.rivaSectionLabel)
-                        .foregroundColor(theme.muted.opacity(0.5))
-                    
-                    Text("or tap to browse")
-                        .font(.rivaFacePile)
-                        .foregroundColor(theme.muted.opacity(0.3))
+            } else if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
+                // Remote image from URL
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: height)
+                            .clipped()
+                    case .failure:
+                        mediaPlaceholder
+                    case .empty:
+                        ProgressView()
+                            .frame(height: height)
+                    @unknown default:
+                        mediaPlaceholder
+                    }
                 }
+            } else {
+                mediaPlaceholder
             }
             
             // Video play button overlay
@@ -119,6 +145,22 @@ struct MediaWell: View {
         .onTapGesture {
             selectedItem = nil // Reset to trigger picker
             // In production, use PhotosPicker via .photosPicker(isPresented:) with a proper @State
+        }
+    }
+    
+    private var mediaPlaceholder: some View {
+        VStack(spacing: 12) {
+            Image(systemName: isVideo ? "video.fill" : "photo.fill")
+                .font(.system(size: 32))
+                .foregroundColor(theme.muted.opacity(0.5))
+            
+            Text(isVideo ? "DROP A GYM VIDEO" : "DROP A GYM PHOTO")
+                .font(.rivaSectionLabel)
+                .foregroundColor(theme.muted.opacity(0.5))
+            
+            Text("or tap to browse")
+                .font(.rivaFacePile)
+                .foregroundColor(theme.muted.opacity(0.3))
         }
     }
 }

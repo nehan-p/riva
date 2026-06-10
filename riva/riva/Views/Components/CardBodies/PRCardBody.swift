@@ -7,6 +7,17 @@ struct PRCardBody: View {
     
     var body: some View {
         VStack(spacing: 14) {
+            // Media (if attached)
+            if let mediaUrl = post.mediaUrl {
+                MediaWell(
+                    height: 220,
+                    isVideo: post.mediaType == "video",
+                    imageUrl: mediaUrl
+                )
+                .cornerRadius(10)
+                .padding(.horizontal, 14)
+            }
+            
             // PR Banner
             HStack(spacing: 8) {
                 Image(systemName: "trophy.fill")

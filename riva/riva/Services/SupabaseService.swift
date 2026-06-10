@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import UIKit
 
 // MARK: - Supabase Service
 actor SupabaseService {
@@ -118,6 +119,97 @@ actor SupabaseService {
         return users
     }
     
+    // MARK: - Log Lift
+    func checkPersonalBest(userId: UUID, exerciseName: String, weight: Double, unit: String) async throws -> Bool {
+        let userPosts: [PostIdRow] = try await client
+            .from("posts")
+            .select("id")
+            .eq("user_id", value: userId)
+            .execute()
+            .value
+        let postIds = userPosts.map { $0.id }
+        guard !postIds.isEmpty else { return false }
+        let lifts: [MaxWeightRow] = try await client
+            .from("lifts")
+            .select("weight")
+            .in("post_id", values: postIds)
+            .eq("exercise_name", value: exerciseName)
+            .eq("unit", value: unit)
+            .order("weight", ascending: false)
+            .limit(1)
+            .execute()
+            .value
+        guard let bestLift = lifts.first, let previousBest = bestLift.weight else { return false }
+        return weight > previousBest
+    }
+    
+    func uploadImage(userId: UUID, image: UIImage) async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw SupabaseError.mediaCompressionFailed
+        }
+        let fileName = "\(UUID().uuidString).jpg"
+        let path = "\(userId.uuidString)/\(fileName)"
+        try await client.storage
+            .from("post-media")
+            .upload(path, data: imageData, options: FileOptions(contentType: "image/jpeg", upsert: false))
+        let publicURL = try client.storage.from("post-media").getPublicURL(path: path)
+        return publicURL.absoluteString
+    }
+    
+    func uploadVideo(userId: UUID, fileURL: URL) async throws -> String {
+        let videoData = try Data(contentsOf: fileURL)
+        let pathExtension = fileURL.pathExtension.isEmpty ? "mov" : fileURL.pathExtension
+        let fileName = "\(UUID().uuidString).\(pathExtension)"
+        let path = "\(userId.uuidString)/\(fileName)"
+        let mimeType = pathExtension.lowercased() == "mp4" ? "video/mp4" : "video/quicktime"
+        try await client.storage
+            .from("post-media")
+            .upload(path, data: videoData, options: FileOptions(contentType: mimeType, upsert: false))
+        let publicURL = try client.storage.from("post-media").getPublicURL(path: path)
+        return publicURL.absoluteString
+    }
+    
+    func createPost(
+        userId: UUID, exerciseName: String, weight: Double, sets: Int, reps: Int,
+        unit: String, isPR: Bool, caption: String?, mediaURL: String?, mediaType: String?
+    ) async throws {
+        let postInsert = PostInsert(userId: userId, mediaUrl: mediaURL, mediaType: mediaType, caption: caption, isPr: isPR)
+        let createdPost: PostIdRow = try await client
+            .from("posts")
+            .insert(postInsert)
+            .select("id")
+            .single()
+            .execute()
+            .value
+        let liftInsert = LiftInsert(postId: createdPost.id, exerciseName: exerciseName, weight: weight, sets: sets, reps: reps, unit: unit)
+        try await client.from("lifts").insert(liftInsert).execute()
+    }
+    
+    // MARK: - PR Helpers
+    
+    /// Returns the previous best weight for a given user/exercise/unit, excluding a specific post.
+    func fetchPreviousBestWeight(userId: UUID, exerciseName: String, unit: String, excludingPostId: UUID? = nil) async throws -> Double? {
+        let userPosts: [PostIdRow] = try await client
+            .from("posts")
+            .select("id")
+            .eq("user_id", value: userId)
+            .execute()
+            .value
+        let postIds = userPosts.map { $0.id }.filter { $0 != excludingPostId }
+        guard !postIds.isEmpty else { return nil }
+        let lifts: [MaxWeightRow] = try await client
+            .from("lifts")
+            .select("weight")
+            .in("post_id", values: postIds)
+            .eq("exercise_name", value: exerciseName)
+            .eq("unit", value: unit)
+            .order("weight", ascending: false)
+            .limit(1)
+            .execute()
+            .value
+        return lifts.first?.weight
+    }
+    
     // MARK: - Posts
     func fetchFeedPosts() async throws -> [Post] {
         let supabasePosts: [FeedPostRow] = try await client
@@ -134,12 +226,14 @@ actor SupabaseService {
     }
     
     private func convertToPosts(_ rows: [FeedPostRow]) async throws -> [Post] {
+        guard !rows.isEmpty else { return [] }
+        let uniqueUserIds = Array(Set(rows.map(\.userId)))
+        let users = (try? await fetchUsers(ids: uniqueUserIds)) ?? []
+        let userMap = Dictionary(uniqueKeysWithValues: users.map { ($0.id, $0) })
         var posts: [Post] = []
         for row in rows {
-            let author = try? await fetchUser(id: row.userId)
-            guard let author = author else { continue }
-            let post = row.toPost(author: author)
-            posts.append(post)
+            guard let author = userMap[row.userId] else { continue }
+            posts.append(row.toPost(author: author))
         }
         return posts
     }
@@ -212,7 +306,7 @@ struct FeedPostRow: Codable {
         case lifts
     }
     
-    func toPost(author: RivaUser) -> Post {
+    func toPost(author: RivaUser, previousBest: Double? = nil) -> Post {
         let timeAgo = createdAt?.timeAgoDisplay() ?? "now"
         let tag: String
         if isPr == true {
@@ -224,20 +318,25 @@ struct FeedPostRow: Codable {
         }
         
         if isPr == true, let firstLift = lifts?.first {
+            let currentWeight = Int(firstLift.weight ?? 0)
+            let prevWeight = previousBest.map { Int($0) } ?? currentWeight
+            let computedGain = currentWeight - prevWeight
             return .pr(PRPost(
                 id: id, author: author, timeAgo: timeAgo, tag: tag,
                 caption: caption ?? "",
                 fireCount: 0, strongCount: 0, commentCount: 0,
                 reactorInitials: [], totalReactors: 0,
                 liftName: firstLift.exerciseName.uppercased(),
-                weight: Int(firstLift.weight ?? 0),
+                weight: currentWeight,
                 unit: firstLift.unit?.uppercased() ?? "LB",
                 scheme: "\(firstLift.sets ?? 0) × \(firstLift.reps ?? 0)",
-                previousWeight: Int((firstLift.weight ?? 0) - 20),
-                gain: 20,
+                previousWeight: prevWeight,
+                gain: computedGain,
                 supportLifts: Array((lifts ?? []).dropFirst().prefix(2)).map { lift in
                     Exercise(name: lift.exerciseName, weight: lift.weight, sets: lift.sets, reps: lift.reps, unit: lift.unit)
-                }
+                },
+                mediaUrl: mediaUrl,
+                mediaType: mediaType
             ))
         } else if mediaType == "video" {
             return .video(VideoPost(
@@ -286,6 +385,52 @@ struct FeedPostRow: Codable {
 }
 
 // MARK: - Helper types
+struct PostInsert: Codable {
+    let userId: UUID
+    let mediaUrl: String?
+    let mediaType: String?
+    let caption: String?
+    let isPr: Bool
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case mediaUrl = "media_url"
+        case mediaType = "media_type"
+        case caption
+        case isPr = "is_pr"
+    }
+}
+
+struct LiftInsert: Codable {
+    let postId: UUID
+    let exerciseName: String
+    let weight: Double
+    let sets: Int
+    let reps: Int
+    let unit: String
+    enum CodingKeys: String, CodingKey {
+        case postId = "post_id"
+        case exerciseName = "exercise_name"
+        case weight, sets, reps, unit
+    }
+}
+
+struct PostIdRow: Codable {
+    let id: UUID
+}
+
+struct MaxWeightRow: Codable {
+    let weight: Double?
+}
+
+enum SupabaseError: LocalizedError {
+    case mediaCompressionFailed
+    var errorDescription: String? {
+        switch self {
+        case .mediaCompressionFailed: return "Failed to compress image for upload."
+        }
+    }
+}
+
 struct ReactionInsert: Codable {
     let postId: UUID
     let userId: UUID
@@ -299,7 +444,7 @@ struct ReactionInsert: Codable {
 }
 
 // MARK: - String Date helpers
-extension String {
+fileprivate extension String {
     func timeAgoDisplay() -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
